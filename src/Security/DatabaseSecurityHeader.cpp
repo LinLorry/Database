@@ -107,5 +107,11 @@ namespace Security
     {
         private_key = BIO_new_mem_buf(private_key_bytes, -1);
     }
+
+    DatabaseSecurityHeader::~DatabaseSecurityHeader()
+    {
+        BIO_free_all(public_key);
+        BIO_free_all(private_key);
+    }
 }
 

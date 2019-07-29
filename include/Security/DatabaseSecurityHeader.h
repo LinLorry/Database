@@ -29,6 +29,8 @@ namespace Security
 
         BIO *getPrivateKey();
 
+        ~DatabaseSecurityHeader();
+
     private:
         void setPublicKey(const byte *public_key_bytes);
 
