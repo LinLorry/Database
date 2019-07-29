@@ -28,6 +28,8 @@ int byteToInt(Security::byte_list::const_iterator & bytes)
     result |= (*(++bytes)<<16);
     result |= (*(++bytes)<<24);
 
+    ++bytes;
+
     return result;
 }
 
@@ -49,23 +51,22 @@ namespace Security
             }
 
             list.erase(iterator);
-            i--;
+            --i;
 
             for (size_t j = 0; (passwordMd5[i] & 0xff) && i!=1;++j)
                 if (iterator!=list.cbegin())
-                    iterator--;
+                    --iterator;
                 else
                     iterator = list.cend();
         }
 
         iterator = list.cbegin();
         size_t private_key_length = byteToInt(iterator);
-        size_t public_key_length = byteToInt(++iterator);
+        size_t public_key_length = byteToInt(iterator);
 
         byte_string private_key_string();
 
-
-        byte_list::const_iterator tmp_iter = ++iterator;
+        byte_list::const_iterator tmp_iter = iterator;
         next(iterator, private_key_length);
 
         byte_vector private_key_vector(tmp_iter, iterator);
