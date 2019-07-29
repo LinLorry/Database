@@ -35,6 +35,11 @@ namespace Security
         ~DatabaseSecurityHeader();
 
     private:
+        static byte_string &generateKeyString(BIO *new_private_key, BIO* new_public_key);
+
+        static byte_string &confusionByteString(const byte_string &b_str, const byte_string &confusion);
+
+    private:
         void setPublicKey(const byte *public_key_bytes);
 
         void setPrivateKey(const byte *private_key_bytes);
