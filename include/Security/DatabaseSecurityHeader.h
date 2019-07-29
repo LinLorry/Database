@@ -1,3 +1,6 @@
+#ifndef DATABASE_SECURIY_HEADER_H
+#define DATABASE_SECURIY_HEADER_H
+
 #include <openssl/rsa.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
@@ -37,3 +40,5 @@ namespace Security
         void setPrivateKey(const byte *private_key_bytes);
     };
 }
+
+#endif

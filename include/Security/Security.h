@@ -1,3 +1,6 @@
+#ifndef SECURITY_H
+#define SECURITY_H
+
 #include <string>
 #include <list>
 #include <vector>
@@ -8,6 +11,7 @@ namespace Security
     typedef std::basic_string<unsigned char> byte_string;
     typedef std::list<unsigned char> byte_list;
     typedef std::vector<unsigned char> byte_vector;
+    
     class Security
     {
         typedef unsigned char byte;
@@ -30,3 +34,4 @@ namespace Security
     };
 }
 
+#endif
