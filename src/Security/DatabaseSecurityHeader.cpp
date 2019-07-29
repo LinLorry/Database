@@ -1,46 +1,18 @@
-#include <Security/DatabaseSecurityHeader.h>
 #include <cstring>
 #include <list>
 #include <vector>
 
-void intToBytes(int i, unsigned char* bytes)
-{
-    *(bytes++) = (unsigned char)(i&0xff);
-    *(bytes++) = (unsigned char)((i&0xff00)>>8);
-    *(bytes++) = (unsigned char)((i&0xff0000)>>16);
-    *(bytes++) = (unsigned char)((i&0xff000000)>>24);
-}
-
-int byteToInt(unsigned char* bytes)
-{
-    int result = *(bytes++);
-    result |= (*(bytes++)<<8);
-    result |= (*(bytes++)<<16);
-    result |= (*(bytes++)<<24);
-
-    return result;
-}
-
-int byteToInt(Security::byte_list::const_iterator & bytes)
-{
-    int result = *(bytes);
-    result |= (*(++bytes)<<8);
-    result |= (*(++bytes)<<16);
-    result |= (*(++bytes)<<24);
-
-    ++bytes;
-
-    return result;
-}
+#include <Security/DatabaseSecurityHeader.h>
+#include <until/byte.h>
 
 namespace Security
 {
     DatabaseSecurityHeader::DatabaseSecurityHeader(const byte_string &headerBytes, 
                                 const byte_string &passwordMd5)
     {
-        size_t index = byteToInt((unsigned char*)headerBytes.c_str());
+        size_t index = byteToInt((byte*)headerBytes.c_str());
 
-        byte_list list((unsigned char*)headerBytes.c_str() + 4, ((unsigned char*)headerBytes.c_str()) + headerBytes.length());
+        byte_list list((byte *)headerBytes.c_str() + 4, ((byte *)headerBytes.c_str()) + headerBytes.length());
         byte_list::const_iterator iterator = next(list.cbegin(), index);
 
         for (size_t i = passwordMd5.length() - 1; i > 0 ; --i)
