@@ -55,10 +55,19 @@ namespace Security
 
     byte_string & DatabaseSecurityHeader::generateHeader(const byte_string &password)
     {
-        RSA *keypair = RSA_generate_key(4096, RSA_F4, nullptr, nullptr);
+        // RSA *keypair = RSA_generate_key(4096, RSA_F4, nullptr, nullptr);
+        RSA *keypair = RSA_new();
+        int ret = 0;
+        BIGNUM *bne = BN_new();
+        ret = BN_set_word(bne, RSA_F4);
+        ret = RSA_generate_key_ex(keypair, 4096, bne, nullptr);
 
         BIO *pri = BIO_new(BIO_s_mem());
         BIO *pub = BIO_new(BIO_s_mem());
+
+        // TODO 修改返回实现报错
+        if (ret != 1)
+            std::abort();
 
         PEM_write_bio_RSAPrivateKey(pri, keypair, nullptr, nullptr, 0, nullptr, nullptr);  
         PEM_write_bio_RSAPublicKey(pub, keypair);
