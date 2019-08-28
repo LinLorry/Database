@@ -97,7 +97,7 @@ namespace Security
 
         key_bytes[8 + pri_key_len + pub_key_len] = '\0';
 
-        return *(new byte_string(key_bytes));
+        return *(new byte_string(key_bytes, 8 + pri_key_len + pub_key_len));
     }
 
     byte_string &DatabaseSecurityHeader::confusionByteString(const byte_string &b_str, const byte_string &confusion)
