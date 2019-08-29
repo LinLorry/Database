@@ -35,7 +35,7 @@ namespace Security
         ~DatabaseSecurityHeader();
 
     private:
-        static byte_string &generateKeyString(BIO *new_private_key, BIO* new_public_key);
+        static byte_string &generateKeyString(RSA *keypair);
 
         static byte_string &confusionByteString(const byte_string &b_str, const byte_string &confusion);
 

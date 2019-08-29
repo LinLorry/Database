@@ -62,27 +62,35 @@ namespace Security
         ret = BN_set_word(bne, RSA_F4);
         ret = RSA_generate_key_ex(keypair, 4096, bne, nullptr);
 
-        BIO *pri = BIO_new(BIO_s_mem());
-        BIO *pub = BIO_new(BIO_s_mem());
-
         // TODO 修改返回实现报错
         if (ret != 1)
             std::abort();
 
-        PEM_write_bio_RSAPrivateKey(pri, keypair, nullptr, nullptr, 0, nullptr, nullptr);  
-        PEM_write_bio_RSAPublicKey(pub, keypair);
-
-        byte_string key_string = generateKeyString(pri, pub);
+        byte_string key_string = generateKeyString(keypair);
 
         return confusionByteString(key_string, password);
     }
 
-    byte_string &DatabaseSecurityHeader::generateKeyString(BIO *pri_key, BIO* pub_key)
+    byte_string &DatabaseSecurityHeader::generateKeyString(RSA *keypair)
     {
-        size_t pri_key_len = BIO_pending(pri_key);
-        size_t pub_key_len = BIO_pending(pri_key);
+        BIO *pri_BIO = BIO_new(BIO_s_mem());
+        BIO *pub_BIO = BIO_new(BIO_s_mem());
+        BIO *pri_BIO_64 = BIO_new(BIO_f_base64());
+        BIO *pub_BIO_64 = BIO_new(BIO_f_base64());
 
-        byte key_bytes[8 + pri_key_len + pub_key_len + 1];
+        PEM_write_bio_RSAPrivateKey(pri_BIO, keypair, nullptr, nullptr, 0, nullptr, nullptr);
+        PEM_write_bio_RSAPublicKey(pub_BIO, keypair);
+        
+        pri_BIO_64 = BIO_push(pri_BIO_64, pri_BIO);
+        pub_BIO_64 = BIO_push(pub_BIO_64, pub_BIO);
+
+        size_t pri_key_len = BIO_pending(pri_BIO_64);
+        size_t pub_key_len = BIO_pending(pub_BIO_64);
+
+        byte key_bytes[8 + pri_key_len + pub_key_len];
+
+        unsigned char pri_byte_array[pri_key_len];
+        unsigned char pub_byte_array[pub_key_len];
 
         byte *p = key_bytes;
 
@@ -91,13 +99,15 @@ namespace Security
         intToBytes(pub_key_len, p);
         p += 4;
 
-        BIO_read(pri_key, p, pri_key_len); 
+        BIO_read(pri_BIO_64, p, pri_key_len);
         p += pri_key_len;
-        BIO_read(pub_key, p, pub_key_len);
+        BIO_read(pub_BIO_64, p, pub_key_len);
+        p += pub_key_len;
 
-        key_bytes[8 + pri_key_len + pub_key_len] = '\0';
+        BIO_free_all(pri_BIO);
+        BIO_free_all(pub_BIO);
 
-        return *(new byte_string(key_bytes, 8 + pri_key_len + pub_key_len));
+        return *(new byte_string(key_bytes, 8 + pri_key_len + pub_key_len));        
     }
 
     byte_string &DatabaseSecurityHeader::confusionByteString(const byte_string &b_str, const byte_string &confusion)
