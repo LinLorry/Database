@@ -53,7 +53,7 @@ namespace Security
         setPublicKey(public_key_vector.data());
     }
 
-    byte_string & DatabaseSecurityHeader::generateHeader(const byte_string &password)
+    const byte_string & DatabaseSecurityHeader::generateHeader(const byte_string &password)
     {
         // RSA *keypair = RSA_generate_key(4096, RSA_F4, nullptr, nullptr);
         RSA *keypair = RSA_new();
@@ -71,7 +71,7 @@ namespace Security
         return confusionByteString(key_string, password);
     }
 
-    byte_string &DatabaseSecurityHeader::generateKeyString(RSA *keypair)
+    const byte_string &DatabaseSecurityHeader::generateKeyString(RSA *keypair)
     {
         BIO *pri_BIO = BIO_new(BIO_s_mem());
         BIO *pub_BIO = BIO_new(BIO_s_mem());
@@ -110,7 +110,7 @@ namespace Security
         return *(new byte_string(key_bytes, 8 + pri_key_len + pub_key_len));        
     }
 
-    byte_string &DatabaseSecurityHeader::confusionByteString(const byte_string &b_str, const byte_string &confusion)
+    const byte_string &DatabaseSecurityHeader::confusionByteString(const byte_string &b_str, const byte_string &confusion)
     {
         byte_list list((byte *)b_str.c_str(), (byte *)b_str.c_str()+b_str.length());
 

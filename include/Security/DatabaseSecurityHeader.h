@@ -20,7 +20,7 @@ namespace Security
         int size;
 
     public:
-        static byte_string & generateHeader(const byte_string &password);
+        static const byte_string & generateHeader(const byte_string &password);
 
     public:
         DatabaseSecurityHeader(const byte_string &headerBytes,
@@ -35,9 +35,13 @@ namespace Security
         ~DatabaseSecurityHeader();
 
     private:
-        static byte_string &generateKeyString(RSA *keypair);
+        static const byte_string &generateKeyString(RSA *keypair);
 
-        static byte_string &confusionByteString(const byte_string &b_str, const byte_string &confusion);
+        static const byte_string &getPublicKeyString(RSA *keypari);
+
+        static const byte_string &getPrivateKeyString(RSA *keypair);
+
+        static const byte_string &confusionByteString(const byte_string &b_str, const byte_string &confusion);
 
     private:
         void setPublicKey(const byte *public_key_bytes);
