@@ -4,6 +4,7 @@
 
 #include <Security/DatabaseSecurityHeader.h>
 #include <until/byte.h>
+#include <until/Base64.h>
 
 namespace Security
 {
@@ -73,41 +74,46 @@ namespace Security
 
     const byte_string &DatabaseSecurityHeader::generateKeyString(RSA *keypair)
     {
+        byte_string private_key_string = DatabaseSecurityHeader::getPrivateKeyString(keypair);
+        byte_string public_key_string = DatabaseSecurityHeader::getPublicKeyString(keypair);
+
+        byte prefix[8];
+        intToBytes(private_key_string.length(), prefix);
+        intToBytes(public_key_string.length(), prefix + 4);
+
+        byte_string *result = new byte_string(prefix, 8);
+        result->append(private_key_string);
+        result->append(public_key_string);
+
+        return *result;
+    }
+
+    const byte_string &DatabaseSecurityHeader::getPrivateKeyString(RSA *keypair)
+    {
         BIO *pri_BIO = BIO_new(BIO_s_mem());
-        BIO *pub_BIO = BIO_new(BIO_s_mem());
-        BIO *pri_BIO_64 = BIO_new(BIO_f_base64());
-        BIO *pub_BIO_64 = BIO_new(BIO_f_base64());
+        EVP_PKEY *prikey = EVP_PKEY_new();
 
         PEM_write_bio_RSAPrivateKey(pri_BIO, keypair, nullptr, nullptr, 0, nullptr, nullptr);
-        PEM_write_bio_RSAPublicKey(pub_BIO, keypair);
-        
-        pri_BIO_64 = BIO_push(pri_BIO_64, pri_BIO);
-        pub_BIO_64 = BIO_push(pub_BIO_64, pub_BIO);
-
-        size_t pri_key_len = BIO_pending(pri_BIO_64);
-        size_t pub_key_len = BIO_pending(pub_BIO_64);
-
-        byte key_bytes[8 + pri_key_len + pub_key_len];
-
-        unsigned char pri_byte_array[pri_key_len];
-        unsigned char pub_byte_array[pub_key_len];
-
-        byte *p = key_bytes;
-
-        intToBytes(pri_key_len, p);
-        p += 4;
-        intToBytes(pub_key_len, p);
-        p += 4;
-
-        BIO_read(pri_BIO_64, p, pri_key_len);
-        p += pri_key_len;
-        BIO_read(pub_BIO_64, p, pub_key_len);
-        p += pub_key_len;
-
+        PEM_read_bio_PrivateKey(pri_BIO, &prikey, nullptr, nullptr);
         BIO_free_all(pri_BIO);
-        BIO_free_all(pub_BIO);
+        pri_BIO = BIO_new(BIO_s_mem());
+        PEM_write_bio_PrivateKey(pri_BIO, prikey, nullptr, nullptr, 0, nullptr, nullptr);
+        EVP_PKEY_free(prikey);
 
-        return *(new byte_string(key_bytes, 8 + pri_key_len + pub_key_len));        
+        size_t test_len =BIO_pending(pri_BIO);
+        char test_str[test_len];
+        BIO_read(pri_BIO, test_str, test_len);
+
+        return base64_decode(test_str + 28, test_len - 53);
+    }
+
+    const byte_string &DatabaseSecurityHeader::getPublicKeyString(RSA *keypair)
+    {
+        size_t pub_len = i2d_RSA_PUBKEY(keypair, nullptr);
+        unsigned char pub_str[pub_len];
+        unsigned char *pub_p = pub_str;
+        i2d_RSA_PUBKEY(keypair, &pub_p);
+        return byte_string(pub_str, pub_len);
     }
 
     const byte_string &DatabaseSecurityHeader::confusionByteString(const byte_string &b_str, const byte_string &confusion)
