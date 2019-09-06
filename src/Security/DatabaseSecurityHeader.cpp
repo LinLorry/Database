@@ -19,9 +19,7 @@ namespace Security
         for (size_t i = passwordMd5.length() - 1; i > 0 ; --i)
         {
             if (*iterator!=passwordMd5[i])
-            {
-
-            }
+                std::abort();
 
             list.erase(iterator);
             --i;
