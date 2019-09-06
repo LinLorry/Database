@@ -125,27 +125,15 @@ namespace Security
 
         for (size_t i = 0; i < confusion.length(); ++i)
         {
-            for (size_t j = 0; j < confusion_byte[i]; ++j)
-            {
-                if (c_iter != list.cend())
-                {
-                    ++c_iter;
-                    ++index;
-                }
-                else
-                {
-                    c_iter = list.cbegin();
-                    index = 0;
-                }
-            }
+            std::advance(c_iter, (int)confusion_byte[i]);
+            index = (index + (int)confusion_byte[i]) % list.size();
             list.insert(c_iter, confusion_byte[++i]);
+            index++;
         }
 
-        byte index_bytes[5];
+        byte index_bytes[4];
         intToBytes(index, index_bytes);
-        index_bytes[4] = '\0';
-
-        byte_string *str = new byte_string(index_bytes);
+        byte_string *str = new byte_string(index_bytes, 4);
 
         for (byte b : list)
             str->push_back(b);
