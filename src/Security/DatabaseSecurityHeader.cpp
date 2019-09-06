@@ -111,7 +111,7 @@ namespace Security
         unsigned char pub_str[pub_len];
         unsigned char *pub_p = pub_str;
         i2d_RSA_PUBKEY(keypair, &pub_p);
-        return byte_string(pub_str, pub_len);
+        return *(new byte_string(pub_str, pub_len));
     }
 
     const byte_string &DatabaseSecurityHeader::confusionByteString(const byte_string &b_str, const byte_string &confusion)
