@@ -16,19 +16,14 @@ namespace Security
         byte_list list((byte *)headerBytes.c_str() + 4, ((byte *)headerBytes.c_str()) + headerBytes.length());
         byte_list::const_iterator iterator = next(list.cbegin(), index);
 
-        for (size_t i = passwordMd5.length() - 1; i > 0 ; --i)
+        for (int i = passwordMd5.length() - 1; i > 0 ; --i)
         {
             if (*iterator!=passwordMd5[i])
                 std::abort();
 
-            list.erase(iterator);
+            list.erase(iterator--);
             --i;
-
-            for (size_t j = 0; (passwordMd5[i] & 0xff) && i!=1;++j)
-                if (iterator!=list.cbegin())
-                    --iterator;
-                else
-                    iterator = list.cend();
+            std::advance(iterator, -(passwordMd5[i] & 0xff));
         }
 
         iterator = list.cbegin();
@@ -174,4 +169,3 @@ namespace Security
         BIO_free_all(private_key);
     }
 }
-
