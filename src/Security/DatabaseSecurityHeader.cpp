@@ -132,7 +132,7 @@ namespace Security
         }
 
         byte index_bytes[4];
-        intToBytes(index, index_bytes);
+        intToBytes(index - 1, index_bytes);
         byte_string *str = new byte_string(index_bytes, 4);
 
         for (byte b : list)
