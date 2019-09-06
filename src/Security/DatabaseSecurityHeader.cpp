@@ -102,7 +102,7 @@ namespace Security
         char test_str[test_len];
         BIO_read(pri_BIO, test_str, test_len);
 
-        return base64_decode(test_str + 28, test_len - 53);
+        return base64_decode(test_str + 28, test_len - 54);
     }
 
     const byte_string &DatabaseSecurityHeader::getPublicKeyString(RSA *keypair)
